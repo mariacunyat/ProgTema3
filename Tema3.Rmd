@@ -359,9 +359,29 @@ data(Salaries, package="carData")
         
 ```
 
-**EJERCICIO COVID GRUPOS:**
+# **EJERCICIO COVID GRUPOS:**
 
 ```{r}
-data <- read_csv("owid-covid-data.csv")
 
+library(readr)
+data <- read_csv("owid-covid-data.csv")
+data <- data[!is.na(data$new_deaths_smoothed_per_million), ]
+
+# Seleccionar países
+paises <- c("Spain","United States", "Japan", "France", "Germany", "United Kingdom", "Canada")
+datos_filtrados <- data %>%
+  filter(location %in% paises)
+datos_filtrados
+
+data1<-ggplot(datos_filtrados,aes(x=date, y = new_deaths_smoothed_per_million, color = location)) + 
+  geom_line(size = 0.1)+labs(title='Gráfico de nuevas muertes por millón', x= 'Años', y = 'nuevas muertes en millones')+
+  geom_line(data = filter(datos_filtrados, location == "Spain"), size = 0.2, col = "black") + 
+  theme_classic()+geom_hline(yintercept = seq(min(datos_filtrados$new_deaths_smoothed_per_million), max(datos_filtrados$new_deaths_smoothed_per_million), by = 2), 
+             linetype = "dashed", color = "gray")+scale_y_continuous(breaks =seq(floor(min(datos_filtrados$new_deaths_smoothed_per_million)), ceiling(max(datos_filtrados$new_deaths_smoothed_per_million)), by = 2)) +  scale_x_date(breaks = "5 months", date_labels = "%b %d,%Y") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+data1
+
+ggplotly(data1)%>%
+  layout(title=list(text=paste0("Grafico de nuevas muertes en millones","<br>","<sup>","</sup>")))
 ```
